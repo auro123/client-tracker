@@ -14,7 +14,7 @@ every task, and never leave the repo in a non-building state.
 
 ## Versions
 <!-- FILL THESE IN after Phase 1, from the numbers Claude Code prints. Keep current. -->
-next: 16.3.4 | react: 19.2.8 | typescript: 5.9.3 | tailwindcss: 4.3.3 | prisma: not installed
+next: 16.3.4 | react: 19.2.8 | typescript: 5.9.3 | tailwindcss: 4.3.3 | prisma: 7.10.0
 
 Version traps to respect regardless of what you remember:
 - `params` and `searchParams` in pages and layouts are Promises. Await them.
@@ -22,7 +22,14 @@ Version traps to respect regardless of what you remember:
   `tailwind.config.js` with `@tailwind base/components/utilities`. Check which
   version is installed before writing any Tailwind config.
 - shadcn/ui may need `--legacy-peer-deps` on install. Use it rather than downgrading React.
-- Prisma driver adapters require the `driverAdapters` preview feature and the Neon adapter package.
+- Prisma 7 no longer allows `url`/`directUrl` in the schema's `datasource` block, and
+  `driverAdapters` is no longer a preview feature (it's built in) — do not add either back.
+  Connection config for CLI commands (`migrate`, `db push`, `validate`) lives in
+  `prisma.config.ts` at the repo root, which loads `.env.local` itself via `dotenv`
+  (Next.js's own env loading does not extend to the standalone Prisma CLI process).
+  `prisma.config.ts` points `datasource.url` at `DIRECT_URL` (unpooled), while the
+  runtime `PrismaClient` in `src/lib/db.ts` builds a `PrismaNeon` adapter from
+  `DATABASE_URL` (pooled). Keep that split — don't collapse it to one URL.
 - If installed versions disagree with these notes, trust `package.json` and update this file.
 
 ## Architecture rules
