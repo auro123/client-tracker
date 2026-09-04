@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import type { Task } from "@prisma/client";
+
 import { getStage, getTaskStatus } from "@/config/pipelines";
 import { formatDueDate } from "@/lib/date";
 import { db } from "@/lib/db";
@@ -70,7 +72,7 @@ export default async function ProjectPage({
         <p className="mt-3 text-sm text-muted-foreground">No tasks yet.</p>
       ) : (
         <ul className="mt-3 divide-y divide-border rounded-lg border border-border">
-          {project.tasks.map((task) => {
+          {project.tasks.map((task: Task) => {
             const status = getTaskStatus(task.statusId);
             return (
               <li
